@@ -61,24 +61,18 @@ pub fn get_apps(ctx: &mut Context, msg: &Message, _args: Args) -> CommandResult 
     let api_client = heroku_client(&config.heroku_api_key);
     let response = api_client.request(&apps::AppList {});
 
-    print_response(response);
+    println!("{:?}", response);
 
-//    let response = heroku_client(&config.heroku_api_key)
-//        .get()
-//        .apps()
-//        .execute::<Vec<HerokuApp>>();
-
-//    msg.reply(
-//        ctx,
-//        match response {
-//            Ok((_, _, Some(apps))) => apps_response(apps),
-//            Ok((_, _, None)) => "You have no Heroku apps".into(),
-//            Err(err) => {
-//                println!("Err {}", err);
-//                "An error occured while fetching your Heroku apps".into()
-//            }
-//        },
- //   )?;
+    msg.reply(
+        ctx,
+        match response {
+            Ok(apps) => apps_response(apps),
+            Err(e) => {
+                println!("Error: {}", e);
+                "An error occured when fetching your Heroku app".into()
+            }
+        }
+    )?;
 
     Ok(())
 }
@@ -136,8 +130,7 @@ fn app_response(app: heroku_rs::endpoints::apps::App) -> String {
     )
 }
 
-/**
-fn apps_response(processed_app_list: Vec<HerokuApp>) -> String {
+fn apps_response(processed_app_list: Vec<heroku_rs::endpoints::apps::App>) -> String {
     let mut list = String::from("Here are your Heroku apps\n");
 
     for app in processed_app_list {
@@ -147,7 +140,6 @@ fn apps_response(processed_app_list: Vec<HerokuApp>) -> String {
 
     list
 }
-**/
 
 fn bot_config(ctx: &Context) -> std::sync::Arc<Config> {
     ctx.data
